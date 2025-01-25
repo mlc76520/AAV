@@ -1,7 +1,3 @@
-// .:::mlc76520:::. 2025
-// sjm4306 C 07/30/21 --- www.youtube.com/@sjm4306 --- https://hackaday.io/project/181004-digital-vu-meter-with-analog-physics ---
-//https://en.wikipedia.org/wiki/Bresenham's_line_algorithm
-
 #include "EEPROM.h"
 #include <SPI.h>
 #include <Wire.h>
