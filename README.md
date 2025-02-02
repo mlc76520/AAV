@@ -3,7 +3,7 @@ Raspberry Arduino Audio Vizualizer
 
 Youtube: https://youtu.be/BoUWVKt8RYw
 
-![AAC](https://github.com/user-attachments/assets/ae7ad3c2-54bd-4525-b8dd-69a1d0a37c1b)
+![AAC](https://github.com/user-attachments/assets/ff4b844f-b73c-4f5e-b41c-9dc6e054ddd6)
 
 Parts list:
 - 1 Raspberry pi 3B
