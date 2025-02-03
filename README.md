@@ -3,6 +3,8 @@ Raspberry Arduino Audio Vizualizer
 
 Youtube: https://youtu.be/BoUWVKt8RYw
 
+Using raspian bookworm x64 or using specialized multimedia distro like moode player https://moodeaudio.org/
+
 ![AAC](https://github.com/user-attachments/assets/ff4b844f-b73c-4f5e-b41c-9dc6e054ddd6)
 
 Parts list:
