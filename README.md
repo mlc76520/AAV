@@ -7,7 +7,7 @@ Custom-built multimedia box powered by a Raspberry Pi 3B running Raspbian Bookwo
 Arduino Nano Integration: Handles two 128x64 OLED screens with a full U8g2 implementation, thanks to a custom Python script communicating over I2C.
 3D Printed Case: Inspired by the sleek design of the Yamaha AS701 amplifier.
 
-![(r)AAV](https://github.com/user-attachments/assets/5f90fa93-4bf0-485b-affb-951b795facf4)
+![(r)AAV](https://github.com/user-attachments/assets/2dfd8dc2-c54a-46a2-a781-7adb17d37767)
 
 Youtube: https://youtu.be/BoUWVKt8RYw
 
