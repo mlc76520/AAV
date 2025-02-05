@@ -49,25 +49,6 @@ U8G2_SSD1309_128X64_NONAME0_F_4W_HW_SPI displayRight(U8G2_R0, CS2, DC2, RESET2);
 // Maximum lengths for buffers
 #define SPECTRUM_SIZE 7
 
-//Matrix screen saver
-#define MATRIX_COLS 16   // Number of columns
-#define MATRIX_SPEED 75  // Lower = faster
-#define NUM_DROPS 8      // Number of concurrent drops
-
-struct Drop {
-  int x;          // x position
-  int y;          // y position
-  int speed;      // How fast this drop falls
-  char chars[8];  // Characters in this drop
-  bool active;    // Whether this drop is currently falling
-};
-
-Drop drops[NUM_DROPS];
-
-// Matrix-like characters
-const char matrixChars[] = "日月火水木金土子0123456789";  // Mix of Japanese ints
-const int numChars = strlen(matrixChars);
-
 // Variables pour stocker les données reçues
 char songTitle[31] = "";   // Titre de la chanson (max 30 caractères + null-terminator)
 char songArtist[31] = "";  // Artiste de la chanson (max 30 caractères + null-terminator)
@@ -199,8 +180,9 @@ void receiveEvent(int dataLength) {
         handleSleepMode();
       }
       break;
-      /*
-    case CMD_ENCODER_1:
+
+/* Commented since no values with deestination to arduino yet
+    case CMD_ENCODER_1: 
       encNumber = 1;
       handleEncoder("Encoder ", encNumber, dataLength);
       break;
@@ -386,80 +368,6 @@ int decodeIntegerData(uint8_t *data, int length) {
   return atoi(temp);
 }
 
-// Initialize drops
-void setupMatrixRain() {
-  for (int i = 0; i < NUM_DROPS; i++) {
-    drops[i].active = false;
-  }
-  randomSeed(analogRead(0));
-}
-
-// Generate random Matrix-like characters
-void generateRandomChars(char *chars, int len) {
-  for (int i = 0; i < len; i++) {
-    chars[i] = matrixChars[random(numChars)];
-  }
-}
-
-// Update and draw Matrix rain
-void updateMatrixRain(U8G2 &u8g2) {
-  static unsigned long lastUpdate = 0;
-
-  if (millis() - lastUpdate < MATRIX_SPEED) {
-    return;
-  }
-  lastUpdate = millis();
-
-  // Create new drops
-  for (int i = 0; i < NUM_DROPS; i++) {
-    if (!drops[i].active) {
-      if (random(100) < 10) {                  // 10% chance to create new drop
-        drops[i].x = random(MATRIX_COLS) * 8;  // Multiply by char width
-        drops[i].y = 0;
-        drops[i].speed = random(1, 4);
-        drops[i].active = true;
-        generateRandomChars(drops[i].chars, 8);
-      }
-    }
-  }
-
-  // Update existing drops
-  displayLeft.setFont(u8g2_font_unifont_te);  // Font with Japanese/Matrix-like chars
-
-  for (int i = 0; i < NUM_DROPS; i++) {
-    if (drops[i].active) {
-      // Draw characters with different brightness
-      for (int j = 0; j < 8; j++) {
-        int y = drops[i].y - (j * 8);
-        if (y >= 0 && y < displayLeft.getDisplayHeight()) {
-          // Head of the drop is brighter
-          if (j == 0) {
-            displayLeft.setDrawColor(2);  // Full brightness
-          } else {
-            displayLeft.setDrawColor(1);  // Dimmer
-          }
-          char str[2] = { drops[i].chars[j], '\0' };
-          displayLeft.drawStr(drops[i].x, y + 8, str);
-        }
-      }
-
-      // Update position
-      drops[i].y += drops[i].speed;
-
-      // Deactivate if off screen
-      if (drops[i].y > displayLeft.getDisplayHeight() + 64) {
-        drops[i].active = false;
-      }
-
-      // Randomly change characters
-      if (random(100) < 5) {  // 5% chance to change chars
-        generateRandomChars(drops[i].chars, 8);
-      }
-    }
-  }
-  displayLeft.setDrawColor(1);  // Reset draw color
-}
-
 typedef void (*VisualizationFunction)();
 
 // Structure to map encoder settings to visualization functions
@@ -477,40 +385,10 @@ void infos() {
   displayLeft.setFontMode(0);                        // enable transparent mode, which is faster
   displayLeft.setFont(u8g2_font_nerhoe_tr);          // set font
   displayLeft.setFontMode(0);                        // enable transparent mode, which is faster
-
   String Track = "Track " + String(songTrack);
   displayLeft.drawUTF8(0, 11, Track.c_str());
   displayLeft.drawUTF8(0, 22, songTitle);
   displayLeft.drawUTF8(0, 33, songArtist);
-
-  //scrolling lines
-  /*
-  u8g2_uint_t x;
-  
-  displayLeft.firstPage();
-  do {
-  
-    // draw the scrolling text at current offset
-    x = offset;
-    displayLeft.setFont(u8g2_font_nerhoe_tr);		// set the target font
-    do {								// repeated drawing of the scrolling text...
-      displayLeft.drawUTF8(x, 55, songAlbum);			// draw the scolling text
-      x += albumWidth;						// add the pixel width of the scrolling text
-    } while( x < displayLeft.getDisplayWidth() );		// draw again until the complete display is filled
-    
-    displayLeft.setFont(u8g2_font_nerhoe_tr);		// draw the current pixel width
-    displayLeft.setCursor(0, 58);
-    displayLeft.print(albumWidth);					// this value must be lesser than 128 unless U8G2_16BIT is set
-    
-  } while ( displayLeft.nextPage() );
-  
-  offset-=1;							// scroll by one pixel
-  if ( (u8g2_uint_t)offset < (u8g2_uint_t)-albumWidth )	
-    offset = 0;							// start over again
-    
-  delay(10);							// do some small delay
-  */
-
   displayLeft.drawUTF8(0, 44, songAlbum);
   String Duration = "Duration " + String(songDuration);
   displayLeft.drawUTF8(0, 55, Duration.c_str());
@@ -529,7 +407,6 @@ void infos() {
 }
 
 void spectrumbars() {
-  // Your spectrum visualization code
   // Left display
   displayLeft.clearBuffer();
 
@@ -885,12 +762,6 @@ void loop() {
   // Handle sleep mode
   if (SLEEP) {
     clearDisplays();
-    /*
-            displayLeft.firstPage();
-    do {
-        updateMatrixRain(displayLeft);
-    } while(displayLeft.nextPage());
-*/
     return;
   }
 

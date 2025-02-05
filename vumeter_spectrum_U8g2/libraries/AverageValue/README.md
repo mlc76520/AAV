@@ -1,0 +1,2 @@
+# AverageValue arduino library
+
