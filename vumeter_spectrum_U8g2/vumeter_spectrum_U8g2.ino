@@ -16,11 +16,6 @@
 U8G2_SSD1309_128X64_NONAME0_F_4W_HW_SPI displayLeft(U8G2_R0, CS1, DC1, RESET1);   // Left Display
 U8G2_SSD1309_128X64_NONAME0_F_4W_HW_SPI displayRight(U8G2_R0, CS2, DC2, RESET2);  // Right Display
 
-#define CMD 0
-#define DATA 1
-
-#define EEPROM_SIZE 5
-
 // Command headers
 #define CMD_SPECTRUM 0x1A
 #define CMD_SLEEP_MODE 0x1C
@@ -77,7 +72,14 @@ uint8_t levelsR[SPECTRUM_SIZE];
 // Screensaver
 unsigned long sleepPreviousMillis = 0;
 const long sleepDelayInterval = 5000;  // 5 seconds in milliseconds
-bool SLEEP = true;               // screens sleep mode function
+bool SLEEP = true;                     // screens sleep mode function
+
+// peakfalling
+unsigned long peakCurrentMillisL[7];
+unsigned long peakPreviousMillisL[7];
+unsigned long peakCurrentMillisR[7];
+unsigned long peakPreviousMillisR[7];
+const long peakDelayInterval = 50;
 
 //I2C
 int i2c_addr = 0x13;
@@ -381,7 +383,7 @@ struct VisualizationMapping {
   VisualizationFunction function;
 };
 
-// Visualization functions 
+// Visualization functions
 void infos() {
 
   displayLeft.clearBuffer();
@@ -435,7 +437,11 @@ void spectrumbars() {
     if (audio_bar_peakL[i] < audio_bar_heightL[i]) {
       audio_bar_peakL[i] = audio_bar_heightL[i];
     } else if (audio_bar_peakL[i] > audio_bar_heightL[i]) {
-      audio_bar_peakL[i]--;
+      peakCurrentMillisL[i] = millis();
+      if (peakCurrentMillisL[i] - peakPreviousMillisL[i] >= peakDelayInterval) {
+        audio_bar_peakL[i]--;
+        peakPreviousMillisL[i] = millis();
+      }
     }
 
     // Draw bars
@@ -473,9 +479,12 @@ void spectrumbars() {
     if (audio_bar_peakR[i] < audio_bar_heightR[i]) {
       audio_bar_peakR[i] = audio_bar_heightR[i];
     } else if (audio_bar_peakR[i] > audio_bar_heightR[i]) {
-      audio_bar_peakR[i]--;
+      peakCurrentMillisR[i] = millis();
+      if (peakCurrentMillisR[i] - peakPreviousMillisR[i] >= peakDelayInterval) {
+        audio_bar_peakR[i]--;
+        peakPreviousMillisR[i] = millis();
+      }
     }
-
     // Draw bars
     if (encNumber == 2 && encValue == 1) {
       for (int j = 2; j < 12; j++) {
@@ -528,6 +537,18 @@ void physics() {
   }
 }
 
+void leftneedle() {
+  // Left Needle
+  displayLeft.drawLine(71 - (127 - pos0) / 8, 63, pos0, 20 - (int)(((double)(pos0 * (127 - pos0))) / 200));
+  displayLeft.sendBuffer();
+}
+
+void rightneedle() {
+  // Right Needle
+  displayRight.drawLine(71 - (127 - pos1) / 8, 63, pos1, 20 - (int)(((double)(pos1 * (127 - pos1))) / 200));
+  displayRight.sendBuffer();
+}
+
 void vumeter() {
 
   physics();
@@ -559,9 +580,7 @@ void vumeter() {
   displayLeft.drawStr(85, 63, "Left");
   displayLeft.drawStr(10, 63, "dB");
 
-  // Left Needle
-  displayLeft.drawLine(71 - (127 - pos0) / 8, 63, pos0, 20 - (int)(((double)(pos0 * (127 - pos0))) / 200));
-  displayLeft.sendBuffer();
+  leftneedle();  // draw left needle
 
   // Draw right VU meter
   displayRight.clearBuffer();
@@ -590,9 +609,7 @@ void vumeter() {
   displayRight.drawStr(85, 63, "Right");
   displayRight.drawStr(10, 63, "dB");
 
-  // Right Needle
-  displayRight.drawLine(71 - (127 - pos1) / 8, 63, pos1, 20 - (int)(((double)(pos1 * (127 - pos1))) / 200));
-  displayRight.sendBuffer();
+  rightneedle();  // draw right needle
 }
 
 void vumeter2() {
@@ -661,12 +678,7 @@ void vumeter2() {
   displayLeft.drawStr(125, 25, "+");
   displayLeft.drawStr(0, 25, "-");
 
-
-  // Left Needle
-  displayLeft.drawLine(71 - (127 - pos0) / 8, 63, pos0, 20 - (int)(((double)(pos0 * (127 - pos0))) / 200));
-  displayLeft.sendBuffer();
-
-
+  leftneedle();  //draw left needle
 
   // Draw right VU meter
   displayRight.clearBuffer();
@@ -730,9 +742,7 @@ void vumeter2() {
   displayRight.drawStr(125, 25, "+");
   displayRight.drawStr(0, 25, "-");
 
-  // Right Needle
-  displayRight.drawLine(71 - (127 - pos1) / 8, 63, pos1, 20 - (int)(((double)(pos1 * (127 - pos1))) / 200));
-  displayRight.sendBuffer();
+  rightneedle();  // draw right needle
 }
 
 void infos2() {
