@@ -68,12 +68,16 @@ char songConsume[10] = "";
 char songPlaylist[10] = "";
 char songPlaylistlenght[10] = "";
 
-// Buffer temporaire pour lire les données
+// Data buffers
 const int BUFFER_SIZE = 32;
 uint8_t buffer[BUFFER_SIZE];
 uint8_t levelsL[SPECTRUM_SIZE];
 uint8_t levelsR[SPECTRUM_SIZE];
-bool SLEEP = false;  // screens sleep mode function
+
+// Screensaver
+unsigned long sleepPreviousMillis = 0;
+const long sleepDelayInterval = 5000;  // 5 seconds in milliseconds
+bool SLEEP = true;               // screens sleep mode function
 
 //I2C
 int i2c_addr = 0x13;
@@ -181,12 +185,12 @@ void receiveEvent(int dataLength) {
       }
       break;
 
-/* Commented since no values with deestination to arduino yet
+    /* Commented since no values with deestination to arduino yet
     case CMD_ENCODER_1: 
       encNumber = 1;
       handleEncoder("Encoder ", encNumber, dataLength);
       break;
-*/
+    */
     case CMD_ENCODER_2:
       encNumber = 2;
       handleEncoder("Encoder ", encNumber, dataLength);
@@ -377,7 +381,7 @@ struct VisualizationMapping {
   VisualizationFunction function;
 };
 
-// Add your visualization functions here
+// Visualization functions 
 void infos() {
 
   displayLeft.clearBuffer();
@@ -402,7 +406,7 @@ void infos() {
   displayRight.drawUTF8(0, 15, songElapsed);
   displayRight.setFont(u8g2_font_nerhoe_tr);
   displayRight.drawUTF8(4, 60, songEncoded);
-  displayRight.drawUTF8(64, 60, songBitrate);
+  displayRight.drawUTF8(69, 60, songBitrate);
   displayRight.sendBuffer();
 }
 
@@ -745,25 +749,30 @@ const VisualizationMapping VISUALIZATION_MAP[] = {
   { 2, 1, spectrumbars },  // Encoder 2, value 1 -> Spectrum (alternative settings?)
   { 2, 2, spectrumbars },  // Encoder 2, value 2 -> VU meter
   { 2, 3, vumeter },       // Encoder 2, value 3 -> VU meter (alternative settings?)
-  { 2, 4, vumeter2 },   // Example new mode
-  { 2, 5, infos2 },  // Example new mode
-  { 2, 6, waterfall }   // Example new mode
+  { 2, 4, vumeter2 },      // Example new mode
+  { 2, 5, infos2 },        // Example new mode
+  { 2, 6, waterfall }      // Example new mode
 };
 
 // Calculate the size of the mapping array
 const size_t VISUALIZATION_COUNT = sizeof(VISUALIZATION_MAP) / sizeof(VISUALIZATION_MAP[0]);
 
-void clearDisplays() {
-  displayLeft.clearDisplay();
-  displayRight.clearDisplay();
-}
-
 void loop() {
-  // Handle sleep mode
-  if (SLEEP) {
-    clearDisplays();
-    return;
+  static bool sleeping = false;
+
+  if (SLEEP && !sleeping) {
+    unsigned long sleepCurrentMillis = millis();
+    if (sleepCurrentMillis - sleepPreviousMillis >= sleepDelayInterval) {
+      sleeping = true;
+      displayLeft.clearDisplay();
+      displayRight.clearDisplay();
+    }
+  } else if (!SLEEP) {
+    sleeping = false;
+    sleepPreviousMillis = millis();
   }
+
+  if (sleeping) return;
 
   // Default to vumeter if no matching configuration is found
   VisualizationFunction currentVisualization = infos;
