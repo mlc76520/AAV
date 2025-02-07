@@ -83,6 +83,7 @@ const long peakDelayInterval = 30;  // 50 milliseconds
 unsigned long lastPeakDecreaseTimeR[7];
 unsigned long lastPeakDecreaseTimeL[7];
 
+
 //I2C
 int i2c_addr = 0x13;
 
@@ -475,12 +476,11 @@ void spectrumbars() {
     if (audio_bar_peakR[i] < audio_bar_heightR[i]) {
       audio_bar_peakR[i] = audio_bar_heightR[i];
     } else if (audio_bar_peakR[i] > audio_bar_heightR[i]) {
-      if (currentTimeR - lastPeakDecreaseTimeR[i] >= peakDelayInterval) {
+   if (currentTimeR - lastPeakDecreaseTimeR[i] >= peakDelayInterval) {
         audio_bar_peakR[i]--;
         lastPeakDecreaseTimeR[i] = currentTimeR;
       }
     }
-
     // Draw bars
     if (encNumber == 2 && encValue == 1) {
       for (int j = 2; j < 12; j++) {
@@ -534,6 +534,7 @@ void physics() {
 }
 
 void needdleL() {
+
   // Left Needle
   displayLeft.drawLine(71 - (127 - pos0) / 8, 63, pos0, 20 - (int)(((double)(pos0 * (127 - pos0))) / 200));
   displayLeft.sendBuffer();
