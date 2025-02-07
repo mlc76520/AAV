@@ -347,8 +347,8 @@ void decodeStringData(uint8_t *data, int length, char *output, int maxLength) {
   output[copyLength] = '\0';  // Null terminate the string
 }
 
-// Function to decode integer data
-int decodeIntegerData(uint8_t *data, int length) {
+int decodeIntegerData(uint8_t *data, int length) { // Function to decode integer data
+
   // Skip command byte
   data++;
   length--;
