@@ -1,4 +1,3 @@
-#include "EEPROM.h"
 #include <SPI.h>
 #include <Wire.h>
 #include <AverageValue.h>
@@ -74,12 +73,16 @@ unsigned long sleepPreviousMillis = 0;
 const long sleepDelayInterval = 5000;  // 5 seconds in milliseconds
 bool SLEEP = true;                     // screens sleep mode function
 
-// peakfalling
-unsigned long peakCurrentMillisL[7];
+//peakFalling
 unsigned long peakPreviousMillisL[7];
-unsigned long peakCurrentMillisR[7];
+unsigned long peakCurrentMillisL[7];
 unsigned long peakPreviousMillisR[7];
-const long peakDelayInterval = 50;
+unsigned long peakCurrentMillisR[7];
+const long peakDelayInterval = 30;  // 50 milliseconds
+
+unsigned long lastPeakDecreaseTimeR[7];
+unsigned long lastPeakDecreaseTimeL[7];
+
 
 //I2C
 int i2c_addr = 0x13;
@@ -141,20 +144,9 @@ void setup() {
   displayRight.sendBuffer();
 
   Serial.begin(115200);
-  EEPROM.begin(EEPROM_SIZE);
   Wire.begin(i2c_addr);          // join i2c bus with address i2c_addr
   Wire.onReceive(receiveEvent);  // register event
-
-  PHYS = EEPROM.read(0);  // Reload last saved PHYSICS
-  if (PHYS > 2) {
-    PHYS = 0;
-    EEPROM.write(0, PHYS);
-    EEPROM.commit();
-  }
-  brt = EEPROM.read(1);
   brightness(256 - brt);  // Reload last saved brightness
-  SCR = EEPROM.read(2);   // Reload last saved screen
-  SBT = EEPROM.read(3);   // Reload last Spectrum bars type
   delay(1500);
   displayLeft.clearDisplay();
   displayRight.clearDisplay();
@@ -430,17 +422,19 @@ void spectrumbars() {
   //displayLeft.setFont(u8g2_font_5x7_mr);
   //displayLeft.drawUTF8(0, 8, songTitle);
 
-  for (int i = 0; i < 7; i++) {
-    // Update bar heights and peaks
-    audio_bar_heightL[i] = audio_bar_heightL[i] + ((map((levelsL[i]), 0, 255, 0, 53) - audio_bar_heightL[i]));
+  unsigned long currentTimeL = millis();
 
+  for (int i = 0; i < 7; i++) {
+    // Smoothly update bar heights
+    audio_bar_heightL[i] += (map(levelsL[i], 0, 255, 0, 53) - audio_bar_heightL[i]);
+
+    // Update peak logic
     if (audio_bar_peakL[i] < audio_bar_heightL[i]) {
       audio_bar_peakL[i] = audio_bar_heightL[i];
     } else if (audio_bar_peakL[i] > audio_bar_heightL[i]) {
-      peakCurrentMillisL[i] = millis();
-      if (peakCurrentMillisL[i] - peakPreviousMillisL[i] >= peakDelayInterval) {
+      if (currentTimeL - lastPeakDecreaseTimeL[i] >= peakDelayInterval) {
         audio_bar_peakL[i]--;
-        peakPreviousMillisL[i] = millis();
+        lastPeakDecreaseTimeL[i] = currentTimeL;
       }
     }
 
@@ -472,17 +466,19 @@ void spectrumbars() {
   displayLeft.drawStr(115, 64, "16K");
 
   // ... Similar code for right channel bars
-  for (int i = 0; i < 7; i++) {
-    // Update bar heights and peaks as before
-    audio_bar_heightR[i] = audio_bar_heightR[i] + ((map((levelsR[i]), 0, 255, 0, 53) - audio_bar_heightR[i]));
+  unsigned long currentTimeR = millis();
 
+  for (int i = 0; i < 7; i++) {
+    // Smoothly update bar heights
+    audio_bar_heightR[i] += (map(levelsR[i], 0, 255, 0, 53) - audio_bar_heightR[i]);
+
+    // Update peak logic
     if (audio_bar_peakR[i] < audio_bar_heightR[i]) {
       audio_bar_peakR[i] = audio_bar_heightR[i];
     } else if (audio_bar_peakR[i] > audio_bar_heightR[i]) {
-      peakCurrentMillisR[i] = millis();
-      if (peakCurrentMillisR[i] - peakPreviousMillisR[i] >= peakDelayInterval) {
+   if (currentTimeR - lastPeakDecreaseTimeR[i] >= peakDelayInterval) {
         audio_bar_peakR[i]--;
-        peakPreviousMillisR[i] = millis();
+        lastPeakDecreaseTimeR[i] = currentTimeR;
       }
     }
     // Draw bars
@@ -537,15 +533,16 @@ void physics() {
   }
 }
 
-void leftneedle() {
+void needdleL() {
+
   // Left Needle
   displayLeft.drawLine(71 - (127 - pos0) / 8, 63, pos0, 20 - (int)(((double)(pos0 * (127 - pos0))) / 200));
   displayLeft.sendBuffer();
 }
 
-void rightneedle() {
-  // Right Needle
-  displayRight.drawLine(71 - (127 - pos1) / 8, 63, pos1, 20 - (int)(((double)(pos1 * (127 - pos1))) / 200));
+void needdleR() {
+  // Left Needle
+  displayRight.drawLine(71 - (127 - pos0) / 8, 63, pos0, 20 - (int)(((double)(pos0 * (127 - pos0))) / 200));
   displayRight.sendBuffer();
 }
 
@@ -580,7 +577,7 @@ void vumeter() {
   displayLeft.drawStr(85, 63, "Left");
   displayLeft.drawStr(10, 63, "dB");
 
-  leftneedle();  // draw left needle
+  needdleL();
 
   // Draw right VU meter
   displayRight.clearBuffer();
@@ -609,7 +606,7 @@ void vumeter() {
   displayRight.drawStr(85, 63, "Right");
   displayRight.drawStr(10, 63, "dB");
 
-  rightneedle();  // draw right needle
+  needdleR();
 }
 
 void vumeter2() {
@@ -678,7 +675,7 @@ void vumeter2() {
   displayLeft.drawStr(125, 25, "+");
   displayLeft.drawStr(0, 25, "-");
 
-  leftneedle();  //draw left needle
+  needdleL();
 
   // Draw right VU meter
   displayRight.clearBuffer();
@@ -742,7 +739,7 @@ void vumeter2() {
   displayRight.drawStr(125, 25, "+");
   displayRight.drawStr(0, 25, "-");
 
-  rightneedle();  // draw right needle
+  needdleR();
 }
 
 void infos2() {
