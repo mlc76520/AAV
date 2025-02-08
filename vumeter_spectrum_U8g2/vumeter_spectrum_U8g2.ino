@@ -39,6 +39,7 @@ U8G2_SSD1309_128X64_NONAME0_F_4W_HW_SPI displayRight(U8G2_R0, CS2, DC2, RESET2);
 #define CMD_SONG_CONSUME 0x2F
 #define CMD_SONG_PLAYLIST 0x30
 #define CMD_SONG_PLAYLISTLENGHT 0x31
+#define CMD_SOURCE 0x32
 
 // Maximum lengths for buffers
 #define SPECTRUM_SIZE 7
@@ -74,15 +75,9 @@ const long sleepDelayInterval = 5000;  // 5 seconds in milliseconds
 bool SLEEP = true;                     // screens sleep mode function
 
 //peakFalling
-unsigned long peakPreviousMillisL[7];
-unsigned long peakCurrentMillisL[7];
-unsigned long peakPreviousMillisR[7];
-unsigned long peakCurrentMillisR[7];
 const long peakDelayInterval = 30;  // 50 milliseconds
-
 unsigned long lastPeakDecreaseTimeR[7];
 unsigned long lastPeakDecreaseTimeL[7];
-
 
 //I2C
 int i2c_addr = 0x13;
