@@ -115,18 +115,12 @@ int encValue = 0;
 u8g2_uint_t offset;      // current offset for the scrolling text
 u8g2_uint_t albumWidth;  // pixel width of the scrolling text (must be lesser than 128 unless U8G2_16BIT is defined
 
-int BTNM = 0;
-int SCR = 0;  // To hold on a screen: 0 = Spectrum analyser, 1= VUmeter
-int SBT = 0;  // To hold Spectrum Bars Type
-
-char PHYS = 1;  //enable needle mass spring physics response, 0 no physics, 1 underdamped, 2 overdamped
+int PHYS = 2;  //enable needle mass spring physics response, 0 no physics, 1 underdamped, 2 overdamped
 // p  ,i
 // 0.2,0.8 - lots of overshoot/oscillations around setpoint, slower settling, underdamped
 // 0.5,0.1 - quicker settling, little overshoot/oscillations, overdamped
 double p_gain = 0.2;
 double i_gain = 0.8;
-
-unsigned char brt = 255;  //Display Brightness
 
 void setup() {
   // Initialize displays
@@ -146,7 +140,6 @@ void setup() {
   Serial.begin(115200);
   Wire.begin(i2c_addr);          // join i2c bus with address i2c_addr
   Wire.onReceive(receiveEvent);  // register event
-  brightness(256 - brt);  // Reload last saved brightness
   delay(1500);
   displayLeft.clearDisplay();
   displayRight.clearDisplay();
@@ -326,11 +319,6 @@ void handleSwitch(const char *name, int dataLength) {
   Serial.println(buffer[1]);
 }
 
-void brightness(unsigned char b) {
-  displayLeft.setContrast(b);
-  displayRight.setContrast(b);
-}
-
 void decodeStringData(uint8_t *data, int length, char *output, int maxLength) {
   // Skip both command byte AND length byte
   data += 2;    // Skip two bytes instead of one
@@ -347,7 +335,7 @@ void decodeStringData(uint8_t *data, int length, char *output, int maxLength) {
   output[copyLength] = '\0';  // Null terminate the string
 }
 
-int decodeIntegerData(uint8_t *data, int length) { // Function to decode integer data
+int decodeIntegerData(uint8_t *data, int length) {  // Function to decode integer data
 
   // Skip command byte
   data++;
@@ -365,15 +353,6 @@ int decodeIntegerData(uint8_t *data, int length) { // Function to decode integer
 
   return atoi(temp);
 }
-
-typedef void (*VisualizationFunction)();
-
-// Structure to map encoder settings to visualization functions
-struct VisualizationMapping {
-  uint8_t encoderNumber;
-  uint8_t encoderValue;
-  VisualizationFunction function;
-};
 
 // Visualization functions
 void infos() {
@@ -476,7 +455,7 @@ void spectrumbars() {
     if (audio_bar_peakR[i] < audio_bar_heightR[i]) {
       audio_bar_peakR[i] = audio_bar_heightR[i];
     } else if (audio_bar_peakR[i] > audio_bar_heightR[i]) {
-   if (currentTimeR - lastPeakDecreaseTimeR[i] >= peakDelayInterval) {
+      if (currentTimeR - lastPeakDecreaseTimeR[i] >= peakDelayInterval) {
         audio_bar_peakR[i]--;
         lastPeakDecreaseTimeR[i] = currentTimeR;
       }
@@ -496,7 +475,7 @@ void spectrumbars() {
   displayRight.sendBuffer();
 }
 
-void physics() {
+void physics(int PHYS) {
   averagelevelL = averageValueL.average();
   averagelevelR = averageValueR.average();
 
@@ -533,27 +512,35 @@ void physics() {
   }
 }
 
-void needdleL() {
-
+void needdleL(int pos0) {
   // Left Needle
-  displayLeft.drawLine(71 - (127 - pos0) / 8, 63, pos0, 20 - (int)(((double)(pos0 * (127 - pos0))) / 200));
+  int startX = 71 - (127 - pos0) / 8;
+  int startY = 63;
+  int endX = pos0;
+  int curveHeight = pos0 * (127 - pos0);
+  int endY = 20 - curveHeight / 200;
+  displayLeft.drawLine(startX, startY, endX, endY);
   displayLeft.sendBuffer();
 }
 
-void needdleR() {
+void needdleR(int pos1) {
   // Left Needle
-  displayRight.drawLine(71 - (127 - pos0) / 8, 63, pos0, 20 - (int)(((double)(pos0 * (127 - pos0))) / 200));
+  int startX = 71 - (127 - pos0) / 8;
+  int startY = 63;
+  int endX = pos0;
+  int curveHeight = pos0 * (127 - pos0);
+  int endY = 20 - curveHeight / 200;
+  displayRight.drawLine(startX, startY, endX, endY);
   displayRight.sendBuffer();
 }
 
 void vumeter() {
 
-  physics();
-
+  physics(PHYS);
   // Draw left VU meter
   displayLeft.clearBuffer();
   displayLeft.setDrawColor(1);
-  displayLeft.setFont(u8g2_font_5x7_mr);
+  displayLeft.setFont(u8g2_font_trixel_square_tn);
   displayLeft.clearBuffer();  // Clear OLED 1
 
   // Background 1
@@ -566,7 +553,7 @@ void vumeter() {
   displayLeft.drawLine(128 - 20, 31, 128 - 15, 26);  // graduation vide
   displayLeft.drawLine(105, 17, 97, 27);             // graduation 0 Bold
   displayLeft.drawLine(104, 17, 128 - 32, 27);       // graduation 0
-  displayLeft.drawVLine(64, 15, 7);                  // graduation -5
+  displayLeft.drawVLine(64, 15, 8);                  // graduation -5
   displayLeft.drawLine(24, 17, 32, 27);              // graduation -15
   displayLeft.drawLine(14, 27, 18, 31);              // graduation -20
   displayLeft.drawStr(0, 31 - 10, "-20");
@@ -574,15 +561,16 @@ void vumeter() {
   displayLeft.drawStr(61, 8, "-5");
   displayLeft.drawStr(103, 13, "0");
   displayLeft.drawStr(119, 20, "+3");
-  displayLeft.drawStr(85, 63, "Left");
-  displayLeft.drawStr(10, 63, "dB");
+  displayLeft.setFont(u8g2_font_missingplanet_tr);
+  displayLeft.drawStr(52, 52, "Left");
+  displayLeft.drawStr(57, 42, "dB");
 
-  needdleL();
+  needdleL(pos0);
 
   // Draw right VU meter
   displayRight.clearBuffer();
   displayRight.setDrawColor(1);
-  displayRight.setFont(u8g2_font_5x7_mr);
+  displayRight.setFont(u8g2_font_trixel_square_tn);
   displayRight.clearBuffer();  // Clear OLED 1
 
   // Background 1
@@ -595,7 +583,7 @@ void vumeter() {
   displayRight.drawLine(128 - 20, 31, 128 - 15, 26);  // graduation vide
   displayRight.drawLine(105, 17, 97, 27);             // graduation 0 Bold
   displayRight.drawLine(104, 17, 128 - 32, 27);       // graduation 0
-  displayRight.drawVLine(64, 15, 7);                  // graduation -5
+  displayRight.drawVLine(64, 15, 8);                  // graduation -5
   displayRight.drawLine(24, 17, 32, 27);              // graduation -15
   displayRight.drawLine(14, 27, 18, 31);              // graduation -20
   displayRight.drawStr(0, 31 - 10, "-20");
@@ -603,15 +591,16 @@ void vumeter() {
   displayRight.drawStr(61, 8, "-5");
   displayRight.drawStr(103, 13, "0");
   displayRight.drawStr(119, 20, "+3");
-  displayRight.drawStr(85, 63, "Right");
-  displayRight.drawStr(10, 63, "dB");
+  displayRight.setFont(u8g2_font_missingplanet_tr);
+  displayRight.drawStr(52, 52, "Right");
+  displayRight.drawStr(57, 42, "dB");
 
-  needdleR();
+  needdleR(pos1);
 }
 
 void vumeter2() {
 
-  physics();
+  physics(PHYS);
 
   // Draw LEFT VU meter
   displayLeft.clearBuffer();
@@ -623,7 +612,6 @@ void vumeter2() {
   displayLeft.setFont(u8g2_font_missingplanet_tr);
   displayLeft.drawStr(40, 60, ".::mlc:HiFi::.");
 
-  //
   displayLeft.setFont(u8g2_font_trixel_square_tn);
   displayLeft.drawStr(0, 5, "20");
   displayLeft.drawVLine(0, 8, 3);  // 20
@@ -633,13 +621,10 @@ void vumeter2() {
   displayLeft.drawVLine(43, 8, 3);  // 7
   displayLeft.drawStr(57, 5, "5");
   displayLeft.drawVLine(57, 8, 3);  // 5
-
   displayLeft.drawStr(70, 5, "3");
   displayLeft.drawVLine(70, 8, 3);  // 2
-
   displayLeft.drawStr(84, 5, "2");
   displayLeft.drawVLine(84, 8, 3);  // 2
-
   displayLeft.drawStr(94, 5, "1");
   displayLeft.drawVLine(95, 8, 3);  // 1
 
@@ -675,7 +660,7 @@ void vumeter2() {
   displayLeft.drawStr(125, 25, "+");
   displayLeft.drawStr(0, 25, "-");
 
-  needdleL();
+  needdleL(pos0);
 
   // Draw right VU meter
   displayRight.clearBuffer();
@@ -687,7 +672,6 @@ void vumeter2() {
   displayRight.setFont(u8g2_font_missingplanet_tr);
   displayRight.drawStr(40, 60, ".::mlc:HiFi::.");
 
-  //
   displayRight.setFont(u8g2_font_trixel_square_tn);
   displayRight.drawStr(0, 5, "20");
   displayRight.drawVLine(0, 8, 3);  // 20
@@ -739,7 +723,7 @@ void vumeter2() {
   displayRight.drawStr(125, 25, "+");
   displayRight.drawStr(0, 25, "-");
 
-  needdleR();
+  needdleR(pos1);
 }
 
 void infos2() {
@@ -749,6 +733,15 @@ void infos2() {
 void waterfall() {
   // Waterfall visualization
 }
+
+typedef void (*VisualizationFunction)();
+
+// Structure to map encoder settings to visualization functions
+struct VisualizationMapping {
+  uint8_t encoderNumber;
+  uint8_t encoderValue;
+  VisualizationFunction function;
+};
 
 // Mapping table - easy to add new modes
 const VisualizationMapping VISUALIZATION_MAP[] = {
