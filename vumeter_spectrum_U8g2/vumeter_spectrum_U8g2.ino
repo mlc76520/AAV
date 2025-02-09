@@ -48,7 +48,7 @@ U8G2_SSD1309_128X64_NONAME0_F_4W_HW_SPI displayRight(U8G2_R0, CS2, DC2, RESET2);
 char songTitle[31] = "";   // Titre de la chanson (max 30 caractères + null-terminator)
 char songArtist[31] = "";  // Artiste de la chanson (max 30 caractères + null-terminator)
 char songAlbum[31] = "";   // Album de la chanson (max 30 caractères + null-terminator)
-char songTrack[5] = "";
+char songTrack[31] = "";
 char songEncoded[15] = "";
 char songBitrate[15] = "";
 char songOutrate[15] = "";
@@ -105,10 +105,6 @@ AverageValue<long> averageValueR(MAX_VALUES_NUM);
 // Buttons and encoder
 int encNumber = 0;
 int encValue = 0;
-
-//scrolling text
-u8g2_uint_t offset;      // current offset for the scrolling text
-u8g2_uint_t albumWidth;  // pixel width of the scrolling text (must be lesser than 128 unless U8G2_16BIT is defined
 
 int PHYS = 2;  //enable needle mass spring physics response, 0 no physics, 1 underdamped, 2 overdamped
 // p  ,i
@@ -167,7 +163,7 @@ void receiveEvent(int dataLength) {
       }
       break;
 
-    /* Commented since no values with deestination to arduino yet
+    /* Commented since no values with destination to arduino
     case CMD_ENCODER_1: 
       encNumber = 1;
       handleEncoder("Encoder ", encNumber, dataLength);
@@ -212,7 +208,7 @@ void receiveEvent(int dataLength) {
 
     case CMD_SONG_TRACK:
       if (dataLength > 1) {  // At least command byte + 1 digit
-        decodeStringData(buffer, dataLength, songTrack, sizeof(songAlbum));
+        decodeStringData(buffer, dataLength, songTrack, sizeof(songTrack));
         Serial.print("Track: ");
         Serial.println(songTrack);
       }
@@ -252,7 +248,7 @@ void receiveEvent(int dataLength) {
 
     case CMD_SONG_ELAPSED:
       if (dataLength > 1) {  // At least command byte + 1 digit
-        decodeStringData(buffer, dataLength, songElapsed, sizeof(songState));
+        decodeStringData(buffer, dataLength, songElapsed, sizeof(songElapsed));
         Serial.print("Elapsed time: ");
         Serial.println(songElapsed);
       }
@@ -353,27 +349,28 @@ int decodeIntegerData(uint8_t *data, int length) {  // Function to decode intege
 void infos() {
 
   displayLeft.clearBuffer();
-  albumWidth = displayLeft.getUTF8Width(songAlbum);  // calculate the pixel width of the text
   displayLeft.setFontMode(0);                        // enable transparent mode, which is faster
   displayLeft.setFont(u8g2_font_nerhoe_tr);          // set font
   displayLeft.setFontMode(0);                        // enable transparent mode, which is faster
-  String Track = "Track " + String(songTrack);
-  displayLeft.drawUTF8(0, 11, Track.c_str());
-  displayLeft.drawUTF8(0, 22, songTitle);
-  displayLeft.drawUTF8(0, 33, songArtist);
-  displayLeft.drawUTF8(0, 44, songAlbum);
-  String Duration = "Duration " + String(songDuration);
-  displayLeft.drawUTF8(0, 55, Duration.c_str());
+  //displayLeft.drawUTF8(0, 11, songTrack);
+  //displayLeft.drawUTF8(0, 22, songTitle);
+  String trackAndTitle = String (songTrack) + " - " + String (songTitle);
+  displayLeft.drawUTF8(0, 40, trackAndTitle.c_str());
+  displayLeft.drawUTF8(0, 50, songArtist);
+  displayLeft.drawUTF8(0, 60, songAlbum);
   displayLeft.sendBuffer();
 
   displayRight.clearBuffer();
   displayRight.setFontMode(0);
   displayRight.setFont(u8g2_font_nerhoe_tr);
-  displayRight.drawUTF8(3, 10, songState);
-  displayRight.setFont(u8g2_font_7_Seg_33x19_mn);
-  displayRight.drawUTF8(0, 15, songElapsed);
+  displayRight.drawUTF8(0, 10, songState);
+  String Duration = "/ " + String(songDuration);
+  displayRight.drawUTF8(0, 47, Duration.c_str());
+  displayRight.setFontMode(0);
+  displayRight.setFont(u8g2_font_inr16_mr);
+  displayRight.drawUTF8(0, 32, songElapsed);
   displayRight.setFont(u8g2_font_nerhoe_tr);
-  displayRight.drawUTF8(4, 60, songEncoded);
+  displayRight.drawUTF8(0, 60, songEncoded);
   displayRight.drawUTF8(69, 60, songBitrate);
   displayRight.sendBuffer();
 }
@@ -424,6 +421,7 @@ void spectrumbars() {
       displayLeft.drawVLine(11 + (i * 19), 53 - audio_bar_heightL[i], audio_bar_heightL[i]);
     }
   }
+
   displayLeft.sendBuffer();
 
   // Right display
