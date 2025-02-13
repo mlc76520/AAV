@@ -42,8 +42,9 @@ class AudioVisualizerSystem:
         
         # LED Setup
         GPIO.setup(GPIO_PINS["LED"], GPIO.OUT)
-        GPIO.output(GPIO_PINS["LED"], GPIO.HIGH)
-
+        pwm = GPIO.PWM(LED_PIN, 100)
+        pwm.start(50)
+        
     def _setup_signal_handlers(self):
         """
         Configure signal handlers for graceful shutdown
