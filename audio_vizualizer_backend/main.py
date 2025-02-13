@@ -41,8 +41,8 @@ class AudioVisualizerSystem:
         GPIO.setmode(GPIO.BCM)
         # LED Setup
         GPIO.setup(GPIO_PINS["LED"], GPIO.OUT)
-        pwm = GPIO.PWM(GPIO_PINS["LED"], 100)
-        pwm.start(80)
+        GPIO.setup(GPIO_PINS["LED"], GPIO.HIGH)
+
 
     def _setup_signal_handlers(self):
         """
