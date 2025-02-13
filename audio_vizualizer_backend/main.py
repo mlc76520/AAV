@@ -42,7 +42,7 @@ class AudioVisualizerSystem:
         # LED Setup
         GPIO.setup(GPIO_PINS["LED"], GPIO.OUT)
         pwm = GPIO.PWM(GPIO_PINS["LED"], 100)
-        pwm.start(50)
+        pwm.start(80)
 
     def _setup_signal_handlers(self):
         """
