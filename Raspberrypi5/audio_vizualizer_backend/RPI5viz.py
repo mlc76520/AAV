@@ -20,7 +20,7 @@ class AudioVisualizer:
         self.RST1_PIN = 24  # Left Display Reset
         self.CS2_PIN = 7    # Right Display CS (GPIO7, physical pin 26)
         self.DC2_PIN = 23   # Right Display DC
-        self.RST2_PIN = 18  # Right Display Reset
+        self.RST2_PIN = 22  # Right Display Reset
         
         # Initialize SPI interface for both displays
         # RPi 5 has two hardware SPI buses: SPI0 and SPI1
