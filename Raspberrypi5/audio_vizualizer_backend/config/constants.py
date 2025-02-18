@@ -28,19 +28,6 @@ audio_visualizer/
 # config/constants.py
 import logging
 
-# I2C Constants
-I2C_ADDRESS = 0x13
-I2C_BUS = 1
-
-# Headers
-SPECTRUM_HEADER = 0x1A
-SLEEP_MODE_HEADER = 0x1C
-ENCODER_1_HEADER = 0x1D
-ENCODER_2_HEADER = 0x1E
-SWITCH_1_HEADER = 0x1F
-SWITCH_2_HEADER = 0x20
-SOURCE_HEADER = 0x32
-
 # Visualization Constants
 BARS_NUMBER = 14
 CHUNK_SIZE = BARS_NUMBER
