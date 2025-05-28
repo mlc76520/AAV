@@ -1,6 +1,8 @@
 # (R)AAV
 (Raspberry) Arduino Audio Vizualizer
 
+This is a music visualization system that displays audio spectrum analyzers, VU meters, and music player information on two OLED displays (128x64 pixels each) connected to a Raspberry Pi.
+Key Components
 Custom-built multimedia box powered by a Raspberry Pi 3B running Raspbian Bookworm, MPD, CAVA, and Pipewire. 
 
 Featuring:
@@ -9,6 +11,71 @@ Bluetooth Audio: Stream music wirelessly to your multimedia box and display info
 2 Rotary Encoders: Navigate your playlist and switch visualizers effortlessly.
 Arduino Nano Integration: Handles two 128x64 OLED screens with a full U8g2 implementation, thanks to a custom Python script communicating over I2C.
 3D Printed Case: Inspired by the sleek design of the Yamaha AS701 amplifier.
+
+1. Display System
+
+Uses two SSD1309 OLED displays connected via SPI
+Left and right displays can show different visualizations
+Supports display power management (on/off)
+
+2. Visualizations
+
+Bar Visualization: Classic spectrum analyzer with frequency bars
+Empty Bar Visualization: Outline-only version of the bars
+VU Meter: Analog-style volume unit meter with needle animation
+Player Info: Shows song metadata and playback status
+
+3. Audio Processing
+
+Uses CAVA (Console-based Audio Visualizer for ALSA) to process audio
+Captures audio from ALSA and converts to frequency data
+Different CAVA configurations for different visualization types
+
+4. Music Players
+
+MPD (Music Player Daemon): Network music player support
+Bluetooth: A2DP Bluetooth audio device support
+Automatically switches between players based on connection status
+
+5. Control Systems
+
+Console Controller: Keyboard-based control for debugging
+Rotary Encoder Controller: Hardware rotary encoders and buttons for:
+
+Switching visualizations
+Changing physics modes (for VU meter)
+Power control
+
+6. Physics Engine
+
+PID controller implementation for VU meter needle physics
+Three modes: Direct (no physics), Underdamped, Overdamped
+
+7. Additional Features
+
+LED power indicator
+Text scrolling for long song titles/artist names
+Automatic display power management (turns off when paused/stopped)
+GPIO resource management to prevent conflicts
+
+Key Functions
+The main program flow:
+
+Initializes hardware (displays, GPIO, LED)
+Starts the selected controller (rotary or console)
+Monitors music players and switches automatically
+Reads audio data from CAVA
+Applies physics calculations if needed
+Renders visualizations on both displays
+Handles player metadata and status updates
+
+Hardware Requirements
+
+Raspberry Pi with GPIO
+2x SSD1309 OLED displays (128x64)
+Optional: 2x rotary encoders with push buttons
+Optional: Power button and LED
+Audio input (ALSA device named "cava")
 
 ![(r)AAV](https://github.com/user-attachments/assets/2dfd8dc2-c54a-46a2-a781-7adb17d37767)
 
