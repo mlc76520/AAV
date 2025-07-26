@@ -1,5 +1,5 @@
 # (R)AAV
-(Raspberry) Arduino Audio Vizualizer
+(Raspberry) Audio Vizualizer
 
 This is a music visualization system that displays audio spectrum analyzers, VU meters, and music player information on two OLED displays (128x64 pixels each) connected to a Raspberry Pi.
 Key Components
@@ -14,7 +14,7 @@ Arduino Nano Integration: Handles two 128x64 OLED screens with a full U8g2 imple
 
 1. Display System
 
-Uses two SSD1309 OLED displays connected via SPI
+Uses two SSD1309 OLED displays via SPI
 Left and right displays can show different visualizations
 Supports display power management (on/off)
 
@@ -27,9 +27,9 @@ Player Info: Shows song metadata and playback status
 
 3. Audio Processing
 
-Uses CAVA (Console-based Audio Visualizer for ALSA) to process audio
+Uses internal FFT to process audio
 Captures audio from ALSA and converts to frequency data
-Different CAVA configurations for different visualization types
+Different configurations for different visualization types
 
 4. Music Players
 
@@ -39,23 +39,17 @@ Automatically switches between players based on connection status
 
 5. Control Systems
 
-Console Controller: Keyboard-based control for debugging
 Rotary Encoder Controller: Hardware rotary encoders and buttons for:
 
 Switching visualizations
 Changing physics modes (for VU meter)
 Power control
 
-6. Physics Engine
-
-PID controller implementation for VU meter needle physics
-Three modes: Direct (no physics), Underdamped, Overdamped
-
 7. Additional Features
 
 LED power indicator
 Text scrolling for long song titles/artist names
-Automatic display power management (turns off when paused/stopped)
+Automatic power management (turns off when no sound detected)
 GPIO resource management to prevent conflicts
 
 Key Functions
@@ -85,7 +79,6 @@ Youtube: https://youtu.be/BoUWVKt8RYw
 
 Parts list:
 - 1 Raspberry pi 3B
-- 1 Arduino nano ESP32
 - 2 Rotary encoders
 - 2 128x64 waveshare SPI OLED screens
 - 1 5v power supply
@@ -102,9 +95,4 @@ How to install Starting from a specialized distro like moode audio player (Easy 
 From the moode web interface:
 - Navigate to Configure > Audio > Activate loopback. This loopback interface is required for cava to read audio stream and create spectrum
 - connect your Moode instance using ssh:
-- Install latest cava version either by cloning their repo or downloading latest release and compile
-- You could use cava version in the repo using apt but it is an older version that is a bit tricky to configure properly work with the script and get a good behaviour
-- OPTIONAL: At this stage you can test with music sample that cava runs well with graphical configuration
-- git clone this repository
-- upload the arduino sketch to your board (vumeter_spectrum_U8g2)
-- 
+- git clone this repository 
