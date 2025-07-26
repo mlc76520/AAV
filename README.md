@@ -88,11 +88,11 @@ Parts list:
 
 Using raspian bookworm x64 or using specialized multimedia distro like moode player https://moodeaudio.org/
 Copy audio_vizualizer_backend to your raspberry pi and run main.py with python3
-Upload vumeter_spectrum_U8g2.ino to your arduino nano (esp32 preffered but should work with nano33iot aswell)
+
 
 How to install Starting from a specialized distro like moode audio player (Easy way)
 
 From the moode web interface:
-- Navigate to Configure > Audio > Activate loopback. This loopback interface is required for cava to read audio stream and create spectrum
+- Navigate to Configure > Audio > Activate loopback. This loopback interface is required to read audio stream and create spectrum
 - connect your Moode instance using ssh:
 - git clone this repository 
