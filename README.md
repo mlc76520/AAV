@@ -75,7 +75,7 @@ Audio input (ALSA device named "cava")
 
 Youtube: https://youtu.be/BoUWVKt8RYw
 
-![AAC](https://github.com/user-attachments/assets/ff4b844f-b73c-4f5e-b41c-9dc6e054ddd6)
+<img width="1058" height="595" alt="AAC" src="https://github.com/user-attachments/assets/d2f882d4-fa7f-4727-b433-ace2f22a3c1c" />
 
 Parts list:
 - 1 Raspberry pi 3B
