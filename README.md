@@ -3,7 +3,7 @@
 
 This is a music visualization system that displays audio spectrum analyzers, VU meters, and music player information on two OLED displays (128x64 pixels each) connected to a Raspberry Pi.
 Key Components
-Custom-built multimedia box powered by a Raspberry Pi 3B running Raspbian Bookworm, MPD, CAVA, and Pipewire. 
+Custom-built multimedia box powered by a Raspberry Pi 3B running Raspbian Bookworm, MPD, and ALSA or Pipewire. 
 
 Featuring:
 Network access to your music repository and display songs informations on the OLED screens.
