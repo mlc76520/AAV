@@ -7,7 +7,7 @@ Custom-built multimedia box powered by a Raspberry Pi 3B running Raspbian Bookwo
 
 Featuring:
 Network access to your music repository and display songs informations on the OLED screens.
-Bluetooth Audio: Stream music wirelessly to your multimedia box and display informations on the OLED screens.
+WORK IN PROGRESS: Bluetooth Audio: Stream music wirelessly to your multimedia box and display informations on the OLED screens.
 2 Rotary Encoders: Navigate your playlist and switch visualizers effortlessly.
 Arduino Nano Integration: Handles two 128x64 OLED screens with a full U8g2 implementation, thanks to a custom Python script communicating over I2C.
 3D Printed Case: Inspired by the sleek design of the Yamaha AS701 amplifier.
