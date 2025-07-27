@@ -58,7 +58,7 @@ The main program flow:
 Initializes hardware (displays, GPIO, LED)
 Starts the selected controller (rotary or console)
 Monitors music players and switches automatically
-Reads audio data from CAVA
+Reads audio data from alsa loopback
 Applies physics calculations if needed
 Renders visualizations on both displays
 Handles player metadata and status updates
@@ -69,7 +69,7 @@ Raspberry Pi with GPIO
 2x SSD1309 OLED displays (128x64)
 Optional: 2x rotary encoders with push buttons
 Optional: Power button and LED
-Audio input (ALSA device named "cava")
+Audio input (ALSA device named "hw:loopback,1")
 
 ![20250723_213114](https://github.com/user-attachments/assets/48470696-50e4-423e-bff8-4481867bdd8b)
 ![20250723_213018](https://github.com/user-attachments/assets/67c2de78-a7cc-4575-8577-bed6b61ee75f)
