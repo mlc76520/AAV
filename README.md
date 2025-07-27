@@ -88,7 +88,6 @@ Parts list:
 
 
 Using raspian bookworm x64 or using specialized multimedia distro like moode player https://moodeaudio.org/
-Copy audio_vizualizer_backend to your raspberry pi and run main.py with python3
 
 
 How to install Starting from a specialized distro like moode audio player (Easy way)
