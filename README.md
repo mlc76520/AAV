@@ -72,6 +72,7 @@ Optional: Power button and LED
 Audio input (ALSA device named "cava")
 
 ![20250723_213114](https://github.com/user-attachments/assets/7b956db7-38ed-444a-9afb-34b1cc27b2f7)
+![20250723_213018](https://github.com/user-attachments/assets/942ac27d-6711-48e9-93c5-a4e3bffb03a8)
 
 Youtube: https://youtu.be/BoUWVKt8RYw
 
