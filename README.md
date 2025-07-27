@@ -71,7 +71,7 @@ Optional: 2x rotary encoders with push buttons
 Optional: Power button and LED
 Audio input (ALSA device named "cava")
 
-![(r)AAV](https://github.com/user-attachments/assets/2dfd8dc2-c54a-46a2-a781-7adb17d37767)
+![20250723_213114](https://github.com/user-attachments/assets/7b956db7-38ed-444a-9afb-34b1cc27b2f7)
 
 Youtube: https://youtu.be/BoUWVKt8RYw
 
